@@ -1,0 +1,35 @@
+{
+  "author": {
+    "name": "Mark Cicoria",
+    "email": "mark@clipppr.com"
+  },
+  "name": "kaster-mongoose",
+  "description": "Mongoose plugin to stream data to Kafka with Avro",
+  "version": "0.0.1",
+  "keywords": [
+    "avro",
+    "kafka",
+    "mongoose"
+  ],
+  "main": "./lib/index.js",
+  "scripts": {
+    "test": "mocha test"
+  },
+  "engines": {
+    "node": ">=0.8"
+  },
+  "dependencies": {
+    "kaster": "git://github.com/clippPR/kaster.git"
+  },
+  "devDependencies": {
+    "mocha": "*"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/clippPR/kaster-mongoose/blob/master/LICENSE"
+    }
+  ],
+  "readme": "",
+  "readmeFilename": "README.md"
+}
