@@ -22,7 +22,8 @@
     "kaster": "git://github.com/clippPR/kaster.git"
   },
   "devDependencies": {
-    "mocha": "*"
+    "mocha": "*",
+    "mongoose": "*"
   },
   "licenses": [
     {
