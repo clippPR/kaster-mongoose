@@ -56,9 +56,14 @@ describe("Kaster Mongoose", function(){
             immediate: true
         });
 
-        producer.on("ready", function(){
+        var timer = setTimeout(function(){
+            INTEGRATION =false;
+            MessageModel.remove({}, done);
+        }, 5000);
 
-           kaster.send({ //Send with Avro serialization
+        producer.on("ready", function(){
+            clearTimeout(timer);
+            kaster.send({ //Send with Avro serialization
                 topic: "kaster-test-check",
                 name: "Message",
                 parition: 0
@@ -73,11 +78,10 @@ describe("Kaster Mongoose", function(){
                 }
 
                 MessageModel.remove({}, done);
-
             });
             
         });
-        
+
     });
 
     it("should send a model to kafka on save", function(done){
