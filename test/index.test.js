@@ -2,7 +2,6 @@ describe("Kaster Mongoose", function(){
     
     var 
         mongoose = require("mongoose"),
-        request = require("request"),
         uuid = require("uuid"),
         kasterMongoose = require("../lib"),
         kaster = require("kaster"),
