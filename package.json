@@ -23,7 +23,8 @@
   },
   "devDependencies": {
     "mocha": "*",
-    "mongoose": "*"
+    "mongoose": "*",
+    "uuid": "*"
   },
   "licenses": [
     {
