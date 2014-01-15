@@ -1,5 +1,7 @@
 **Note:** This is a work in progress
 
+[![Build Status](https://travis-ci.org/clippPR/kaster-mongoose.png)](https://travis-ci.org/clippPR/kaster-mongoose)
+
 Mongoose plugin to stream data to Kafka with Avro serialization
 
 ##Example
