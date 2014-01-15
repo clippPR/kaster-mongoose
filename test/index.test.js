@@ -28,6 +28,7 @@ describe("Kaster Mongoose", function(){
     var message_id, consumer;
 
     before(function(done){
+        this.timeout(10000);
         consumer = kaster.createConsumer({
                 clientHost: process.env.KAFKA_TEST_HOST || "localhost:2181",
                 topics: [
