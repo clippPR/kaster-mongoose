@@ -2,6 +2,7 @@ describe("Kaster Mongoose", function(){
     
     var 
         mongoose = require("mongoose"),
+        should = require("should"),
         uuid = require("uuid"),
         kasterMongoose = require("../lib"),
         kaster = require("kaster"),
@@ -9,8 +10,12 @@ describe("Kaster Mongoose", function(){
         schema = mongoose.Schema({
             _id: {type: String, "default": uuid.v4},
             body: String,
-            user: String,
+            user: {type: String, ref: "User"},
             created: Date
+        }),
+        userSchema = mongoose.Schema({
+            _id: {type: String, "default": uuid.v4},
+            name: String
         });
     
 
@@ -25,6 +30,7 @@ describe("Kaster Mongoose", function(){
     });
 
     var MessageModel = mongoose.model("Message", schema);
+    var UserModel = mongoose.model("User", userSchema);
     var message_id, consumer;
 
     before(function(done){
@@ -87,9 +93,10 @@ describe("Kaster Mongoose", function(){
     it("should send a model to kafka on save", function(done){
         var message = new MessageModel({
             body: "Hello world!",
-            user: "Mark",
             created: Date.now()
         });
+
+        message_id = message._id;
 
         var messageHandler = kaster.createMessageHandler(function(err, message, header){
             if(err) throw err;
@@ -138,5 +145,50 @@ describe("Kaster Mongoose", function(){
         });
 
         consumer.on("message", messageHandler);
+    });
+
+    it("should send populated sub documents as ids", function(done){
+    
+        var message = new MessageModel({
+            body: "Hello world!",
+            created: Date.now()
+        });
+
+        var user = new UserModel({
+            name: "Mark"
+        });
+
+        message.user = user;
+        var message_id = message._id;
+
+        var messageHandler = kaster.createMessageHandler(function(err, message, header){
+            if(err) throw err;
+
+            if(
+                message && 
+                message_id && 
+                message._id == message_id && 
+                header && header.meta && header.meta["avro.schema"] &&
+                header.meta["avro.schema"].name == "Message"
+            ) {
+                should.not.exist(message.user._id);
+                should.exist(message.user);
+                return done();
+            }
+        });
+
+        consumer.on("message", messageHandler);
+        
+        user.save(function(){
+            message.populate("user", function(err, result){
+                message = result;
+
+                message.save(function(err, saved){
+                    if(err) throw err;
+                    message_id = saved._id;
+                    if(!INTEGRATION) return done();
+                });
+            });
+        });
     });
 });
