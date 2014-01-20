@@ -25,7 +25,8 @@
     "mocha": "*",
     "mongoose": "*",
     "uuid": "*",
-    "should": "*"
+    "should": "*",
+    "async": "*"
   },
   "licenses": [
     {
