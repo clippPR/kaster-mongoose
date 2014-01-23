@@ -19,7 +19,7 @@
     "node": ">=0.8"
   },
   "dependencies": {
-    "kaster": "git://github.com/clippPR/kaster.git"
+    "kaster": "git://github.com/clippPR/kaster.git#feature/kafka"
   },
   "devDependencies": {
     "mocha": "*",
