@@ -5,7 +5,7 @@
   },
   "name": "kaster-mongoose",
   "description": "Mongoose plugin to stream data to Kafka with Avro",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "keywords": [
     "avro",
     "kafka",
@@ -26,7 +26,8 @@
     "mongoose": "*",
     "uuid": "*",
     "should": "*",
-    "async": "*"
+    "async": "*",
+    "kinesis": "*"
   },
   "licenses": [
     {
