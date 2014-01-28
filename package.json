@@ -26,7 +26,8 @@
     "mongoose": "*",
     "uuid": "*",
     "should": "*",
-    "async": "*"
+    "async": "*",
+    "kinesis": "*"
   },
   "licenses": [
     {

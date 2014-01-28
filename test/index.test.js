@@ -1,7 +1,15 @@
 describe("Kaster Mongoose", function(){
-    this.timeout(5000);
+    this.timeout(10000);
+
+    if(
+        (!process.env.AWS_ACCESS_KEY && !process.env.AWS_ACCESS_KEY_ID) ||
+        (!process.env.AWS_SECRET_KEY && !process.env.AWS_SECRET_ACCESS_KEY)
+    ) {
+        return;
+    }
 
     var 
+        STREAM_NAME = process.env.TEST_STREAM || "kaster-mongoose-testing",
         mongoose = require("mongoose"),
         async = require("async"),
         should = require("should"),
@@ -30,19 +38,17 @@ describe("Kaster Mongoose", function(){
     mongoose.connect(process.env.MONGO_TEST_URI || "mongodb://localhost/kaster-mongoose-test");
 
     schema.plugin(kasterMongoose, {
-        clientHost: process.env.KAFKA_TEST_HOST || "localhost:2181",
-        immediate: true,
         namespace: "MyApp.Test",
         name: "Message",
-        topic: "kaster-test"
+        topic: STREAM_NAME,
+        region: "us-east-1"
     });
 
     otherSchema.plugin(kasterMongoose, {
-        clientHost: process.env.KAFKA_TEST_HOST || "localhost:2181",
-        immediate: true,
         namespace: "MyApp.Test",
         name: "OtherMessage",
-        topic: "kaster-test"
+        topic: STREAM_NAME,
+        region: "us-east-1"
     });
 
     var MessageModel = mongoose.model("Message", schema);
@@ -50,84 +56,32 @@ describe("Kaster Mongoose", function(){
     var UserModel = mongoose.model("User", userSchema);
     var consumer, delete_message_id;
 
-    before(function(done){
-        this.timeout(10000);
-
-        var producer = kaster.createProducer({
-            namespace: "Kaster.Test",
-            clientHost: process.env.KAFKA_TEST_HOST || "localhost:2181",
-            immediate: true
-        });
-
-        var timer = setTimeout(function(){
-            INTEGRATION =false;
-            MessageModel.remove({}, done);
-        }, 5000);
-
-        producer.on("ready", function(){
-            clearTimeout(timer);
-
-            async.series([
-                function(cb){
-                    producer.createTopics(["kaster-test", "kaster-test-check"], cb);
-                },
-                function(cb){
-                    kaster.send({ //Send with Avro serialization
-                        topic: "kaster-test-check",
-                        name: "Message",
-                        parition: 0
-                    }, { test: "test"}, cb);
-                }
-            ],
-            function(err, data){
-
-                if(err) {
-                    console.log("Kafka not running. Not running integration tests.");
-                    INTEGRATION = false;
-                } else {
-                    console.log("Kafka running! Running integration tests.");
-                    INTEGRATION = true;
-                }
-
-                async.parallel([
-                    function(cb){ MessageModel.remove({}, cb); },
-                    function(cb){ OtherMessageModel.remove({}, cb); },
-                    function(cb){
-                        consumer = kaster.createConsumer({
-                            clientHost: process.env.KAFKA_TEST_HOST || "localhost:2181",
-                            topics: [
-                                {topic: "kaster-test", partition: 0, offset: 0}
-                            ],
-                            settings: {
-                                groupId: 'kafka-node-group', //consumer group id, deafult `kafka-node-group`
-                                // Auto commit config 
-                                autoCommit: false,
-                                autoCommitIntervalMs: 5000,
-                                // The max wait time is the maximum amount of time in milliseconds to block waiting if insufficient data is available at the time the request is issued, default 100ms
-                                fetchMaxWaitMs: 100,
-                                // This is the minimum number of bytes of messages that must be available to give a response, default 1 byte
-                                fetchMinBytes: 1,
-                                // The maximum bytes to include in the message set for this partition. This helps bound the size of the response.
-                                fetchMaxBytes: 1024 * 10, 
-                                // If set true, consumer will fetch message from the given offset in the payloads 
-                                fromOffset: true
-                            }
-                        });
-
-                        consumer.on("error", function(err){
-                            throw err;
-                        });
-
-                        process.nextTick(cb);
-                    }
-                ], done);
-            });
-
-            
-            
-        });
-
+    var consumer = kaster.createConsumer({
+        topic: STREAM_NAME,
+        region: "us-east-1",
+        oldest: true,
+        // shardIds: shard
     });
+    
+    // var kinesis = require("kinesis");
+
+    // before(function(done){
+    //     kinesis.request("CreateStream", {
+    //         ShardCount: 1,
+    //         StreamName: STREAM_NAME
+    //     }, {
+    //         region: "us-east-1"
+    //     }, done);
+    // });
+
+    // after(function(done){
+    //     kinesis.request("CreateStream", {
+    //         StreamName: STREAM_NAME
+    //     }, {
+    //         region: "us-east-1"
+    //     }, done);
+    // });
+
 
     it("should send a model to kafka on save", function(done){
         var m1 = new MessageModel({
@@ -149,14 +103,14 @@ describe("Kaster Mongoose", function(){
             ) {
                 return done();
             }
+
         });
 
-        if(consumer) consumer.on("message", messageHandler);
+        consumer.on("data", messageHandler);
         
         m1.save(function(err, saved){
             if(err) throw err;
             delete_message_id = message_id = saved._id;
-            if(!INTEGRATION) return done();
         });
     });
 
@@ -168,7 +122,6 @@ describe("Kaster Mongoose", function(){
 
             message.remove(function(err){
                 if(err) throw err;
-                if(!INTEGRATION) return done();
             });
         });
 
@@ -186,7 +139,7 @@ describe("Kaster Mongoose", function(){
             }
         });
 
-        if(consumer) consumer.on("message", messageHandler);
+        consumer.on("data", messageHandler);
     });
 
     it("should send populated sub documents as ids", function(done){
@@ -219,7 +172,7 @@ describe("Kaster Mongoose", function(){
             }
         });
 
-        if(consumer) consumer.on("message", messageHandler);
+        consumer.on("data", messageHandler);
         
         user.save(function(){
             m1.populate("user", function(err, result){
@@ -269,7 +222,7 @@ describe("Kaster Mongoose", function(){
                 }
             });
 
-            if(consumer) consumer.on("message", messageHandler);
+            consumer.on("data", messageHandler);
 
             should.not.exist(err);
 
