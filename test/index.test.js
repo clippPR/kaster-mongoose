@@ -9,7 +9,7 @@ describe("Kaster Mongoose", function(){
     }
 
     var 
-        STREAM_NAME = process.env.TEST_STREAM || "testing",
+        STREAM_NAME = process.env.TEST_STREAM || "kaster-mongoose-testing",
         mongoose = require("mongoose"),
         async = require("async"),
         should = require("should"),
@@ -40,13 +40,15 @@ describe("Kaster Mongoose", function(){
     schema.plugin(kasterMongoose, {
         namespace: "MyApp.Test",
         name: "Message",
-        topic: STREAM_NAME
+        topic: STREAM_NAME,
+        region: "us-east-1"
     });
 
     otherSchema.plugin(kasterMongoose, {
         namespace: "MyApp.Test",
         name: "OtherMessage",
-        topic: STREAM_NAME
+        topic: STREAM_NAME,
+        region: "us-east-1"
     });
 
     var MessageModel = mongoose.model("Message", schema);
