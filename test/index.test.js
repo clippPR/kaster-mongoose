@@ -1,5 +1,5 @@
 describe("Kaster Mongoose", function(){
-    this.timeout(10000);
+    this.timeout(30000);
 
     if(
         (!process.env.AWS_ACCESS_KEY && !process.env.AWS_ACCESS_KEY_ID) ||
@@ -83,7 +83,7 @@ describe("Kaster Mongoose", function(){
     // });
 
 
-    it("should send a model to kafka on save", function(done){
+    it("should send a model to kaster on save", function(done){
         var m1 = new MessageModel({
             body: "Hello world!",
             created: Date.now()
@@ -108,13 +108,16 @@ describe("Kaster Mongoose", function(){
 
         consumer.on("data", messageHandler);
         
-        m1.save(function(err, saved){
-            if(err) throw err;
-            delete_message_id = message_id = saved._id;
-        });
+        setTimeout(function(){
+            m1.save(function(err, saved){
+                if(err) throw err;
+                delete_message_id = message_id = saved._id;
+            });
+        }, 10000);
+        
     });
 
-    it("should send a delete model schema to kafka on remove", function(done){
+    it("should send a delete model schema to kaster on remove", function(done){
 
         MessageModel.findOne({_id: delete_message_id}, function(err, message){
             should.not.exist(err);
