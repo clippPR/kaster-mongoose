@@ -4,8 +4,8 @@
     "email": "mark@clipppr.com"
   },
   "name": "kaster-mongoose",
-  "description": "Mongoose plugin to stream data to Kafka with Avro",
-  "version": "0.1.0",
+  "description": "Mongoose plugin to stream data to Kinesis with Avro serialization",
+  "version": "0.2.0",
   "keywords": [
     "avro",
     "kafka",
