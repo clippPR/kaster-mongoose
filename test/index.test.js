@@ -9,7 +9,7 @@ describe("Kaster Mongoose", function(){
     }
 
     var 
-        STREAM_NAME = process.env.TEST_STREAM || "kaster-mongoose-testing",
+        STREAM_NAME = process.env.TEST_STREAM || "kaster-testing",
         mongoose = require("mongoose"),
         async = require("async"),
         should = require("should"),
@@ -56,7 +56,7 @@ describe("Kaster Mongoose", function(){
     var UserModel = mongoose.model("User", userSchema);
     var consumer, delete_message_id;
 
-    var consumer = kaster.createConsumer({
+    consumer = kaster.createConsumer({
         topic: STREAM_NAME,
         region: "us-east-1",
         oldest: true,
@@ -93,7 +93,7 @@ describe("Kaster Mongoose", function(){
 
         var messageHandler = kaster.createMessageHandler(function(err, message, header){
             if(err) throw err;
-
+            // console.log("Got a message", message, header);
             if(
                 message && 
                 message_id && 
@@ -110,6 +110,7 @@ describe("Kaster Mongoose", function(){
         
         setTimeout(function(){
             m1.save(function(err, saved){
+                // console.log("done savin");
                 if(err) throw err;
                 delete_message_id = message_id = saved._id;
             });
