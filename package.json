@@ -5,7 +5,7 @@
   },
   "name": "kaster-mongoose",
   "description": "Mongoose plugin to stream data to Kinesis with Avro serialization",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "keywords": [
     "avro",
     "kafka",
