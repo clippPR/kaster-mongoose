@@ -84,6 +84,7 @@ describe("Kaster Mongoose", function(){
 
 
     it("should send a model to kaster on save", function(done){
+        this.timeout(600000);
         var m1 = new MessageModel({
             body: "Hello world!",
             created: Date.now()

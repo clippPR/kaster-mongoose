@@ -19,7 +19,7 @@
     "node": ">=0.8"
   },
   "dependencies": {
-    "kaster": "git://github.com/clippPR/kaster.git"
+    "kaster": "git://github.com/clippPR/kaster.git#0.3.0"
   },
   "devDependencies": {
     "mocha": "*",
